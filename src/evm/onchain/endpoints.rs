@@ -46,10 +46,14 @@ pub enum Chain {
     GNOSIS,
     BASE,
     CELO,
+    UNICHAIN,
+    UNICHAIN_SEPOLIA,
     ZKEVM,
     ZkevmTestnet,
     BLAST,
     LINEA,
+    SWELLCHAIN,
+    SWELLCHAIN_TESTNET,
     LOCAL,
     IOTEX,
     SCROLL,
@@ -82,10 +86,16 @@ impl FromStr for Chain {
             "gnosis" => Ok(Self::GNOSIS),
             "base" => Ok(Self::BASE),
             "celo" => Ok(Self::CELO),
+            "unichain" => Ok(Self::UNICHAIN),
+            "unichain_sepolia" | "unichain-sepolia" => Ok(Self::UNICHAIN_SEPOLIA),
             "zkevm" => Ok(Self::ZKEVM),
             "zkevm_testnet" => Ok(Self::ZkevmTestnet),
             "blast" => Ok(Self::BLAST),
             "linea" => Ok(Self::LINEA),
+            "swellchain" | "swell" => Ok(Self::SWELLCHAIN),
+            "swellchain_testnet" | "swellchain-testnet" | "swell_testnet" | "swell-testnet" => {
+                Ok(Self::SWELLCHAIN_TESTNET)
+            }
             "local" => Ok(Self::LOCAL),
             "iotex" => Ok(Self::IOTEX),
             "scroll" => Ok(Self::SCROLL),
@@ -150,10 +160,14 @@ impl Chain {
             100 => Self::GNOSIS,
             8453 => Self::BASE,
             42220 => Self::CELO,
+            130 => Self::UNICHAIN,
+            1301 => Self::UNICHAIN_SEPOLIA,
             1101 => Self::ZKEVM,
             1442 => Self::ZkevmTestnet,
             81457 => Self::BLAST,
             59144 => Self::LINEA,
+            1923 => Self::SWELLCHAIN,
+            1924 => Self::SWELLCHAIN_TESTNET,
             4689 => Self::IOTEX,
             534352 => Self::SCROLL,
             1480 => Self::VANA,
@@ -179,10 +193,14 @@ impl Chain {
             Chain::GNOSIS => 100,
             Chain::BASE => 8453,
             Chain::CELO => 42220,
+            Chain::UNICHAIN => 130,
+            Chain::UNICHAIN_SEPOLIA => 1301,
             Chain::ZKEVM => 1101,
             Chain::ZkevmTestnet => 1442,
             Chain::BLAST => 81457,
             Chain::LINEA => 59144,
+            Chain::SWELLCHAIN => 1923,
+            Chain::SWELLCHAIN_TESTNET => 1924,
             Chain::IOTEX => 4689,
             Chain::SCROLL => 534352,
             Chain::VANA => 1480,
@@ -207,11 +225,15 @@ impl Chain {
             Chain::GNOSIS => "gnosis",
             Chain::BASE => "base",
             Chain::CELO => "celo",
+            Chain::UNICHAIN => "unichain",
+            Chain::UNICHAIN_SEPOLIA => "unichain_sepolia",
             Chain::ZKEVM => "zkevm",
             Chain::ZkevmTestnet => "zkevm_testnet",
             Chain::BLAST => "blast",
             Chain::LINEA => "linea",
             Chain::LOCAL => "local",
+            Chain::SWELLCHAIN => "swellchain",
+            Chain::SWELLCHAIN_TESTNET => "swellchain_testnet",
             Chain::IOTEX => "iotex",
             Chain::SCROLL => "scroll",
             Chain::VANA => "vana",
@@ -224,6 +246,40 @@ impl Chain {
         if let Ok(url) = env::var("ETH_RPC_URL") {
             return url;
         }
+
+        // Chain-specific overrides.
+        let chain_override_env = match self {
+            Chain::UNICHAIN => Some("UNICHAIN_RPC_URL"),
+            Chain::UNICHAIN_SEPOLIA => Some("UNICHAIN_SEPOLIA_RPC_URL"),
+            Chain::SWELLCHAIN => Some("SWELLCHAIN_RPC_URL"),
+            Chain::SWELLCHAIN_TESTNET => Some("SWELLCHAIN_TESTNET_RPC_URL"),
+            _ => None,
+        };
+        if let Some(var) = chain_override_env {
+            if let Ok(url) = env::var(var) {
+                return url;
+            }
+        }
+
+        // Prefer Infura endpoints when an API key is provided.
+        if let Ok(infura_api_key) = env::var("INFURA_API_KEY") {
+            match self {
+                Chain::UNICHAIN => {
+                    return format!("https://unichain-mainnet.infura.io/v3/{infura_api_key}");
+                }
+                Chain::UNICHAIN_SEPOLIA => {
+                    return format!("https://unichain-sepolia.infura.io/v3/{infura_api_key}");
+                }
+                Chain::SWELLCHAIN => {
+                    return format!("https://swellchain-mainnet.infura.io/v3/{infura_api_key}");
+                }
+                Chain::SWELLCHAIN_TESTNET => {
+                    return format!("https://swellchain-testnet.infura.io/v3/{infura_api_key}");
+                }
+                _ => {}
+            }
+        }
+
         match self {
             Chain::ETH => "https://eth.merkle.io",
             Chain::GOERLI => "https://rpc.ankr.com/eth_goerli",
@@ -239,10 +295,14 @@ impl Chain {
             Chain::GNOSIS => "https://rpc.ankr.com/gnosis",
             Chain::BASE => "https://developer-access-mainnet.base.org",
             Chain::CELO => "https://rpc.ankr.com/celo",
+            Chain::UNICHAIN => "https://mainnet.unichain.org",
+            Chain::UNICHAIN_SEPOLIA => "https://sepolia.unichain.org",
             Chain::ZKEVM => "https://rpc.ankr.com/polygon_zkevm",
             Chain::ZkevmTestnet => "https://rpc.ankr.com/polygon_zkevm_testnet",
             Chain::BLAST => "https://rpc.ankr.com/blast",
             Chain::LINEA => "https://rpc.ankr.com/linea",
+            Chain::SWELLCHAIN => "https://rpc.ankr.com/swell",
+            Chain::SWELLCHAIN_TESTNET => "https://rpc.ankr.com/swell-testnet",
             Chain::IOTEX => "https://rpc.ankr.com/iotex",
             Chain::SCROLL => "https://rpc.ankr.com/scroll",
             Chain::VANA => "https://rpc.vana.org",
@@ -268,11 +328,15 @@ impl Chain {
             Chain::GNOSIS => "https://api.etherscan.io/v2/api",
             Chain::BASE => "https://api.etherscan.io/v2/api",
             Chain::CELO => "https://api.etherscan.io/v2/api",
+            Chain::UNICHAIN => "https://api.etherscan.io/v2/api",
+            Chain::UNICHAIN_SEPOLIA => "https://api.etherscan.io/v2/api",
             Chain::ZKEVM => "https://api.etherscan.io/v2/api",
             Chain::ZkevmTestnet => "https://api.etherscan.io/v2/api",
             Chain::BLAST => "https://api.etherscan.io/v2/api",
             Chain::LINEA => "https://api.etherscan.io/v2/api",
             Chain::LOCAL => "http://localhost:8080/abi/",
+            Chain::SWELLCHAIN => "https://api.etherscan.io/v2/api",
+            Chain::SWELLCHAIN_TESTNET => "https://api.etherscan.io/v2/api",
             Chain::IOTEX => "https://babel-api.mainnet.IoTeX.io",
             Chain::SCROLL => "https://api.etherscan.io/v2/api",
             Chain::VANA => "https://api.vanascan.io/api/v2",
