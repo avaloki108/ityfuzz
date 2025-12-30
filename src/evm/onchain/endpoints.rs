@@ -262,7 +262,16 @@ impl Chain {
         }
 
         // Prefer Infura endpoints when an API key is provided.
-        if let Ok(infura_api_key) = env::var("INFURA_API_KEY") {
+        //
+        // Supports both:
+        // - runtime env var:   INFURA_API_KEY=... ityfuzz ...
+        // - build-time embed:  INFURA_API_KEY=... cargo build
+        //   (the binary can then run without INFURA_API_KEY set)
+        let infura_api_key = env::var("INFURA_API_KEY")
+            .ok()
+            .or_else(|| option_env!("INFURA_API_KEY").map(|v| v.to_string()));
+
+        if let Some(infura_api_key) = infura_api_key {
             match self {
                 Chain::UNICHAIN => {
                     return format!("https://unichain-mainnet.infura.io/v3/{infura_api_key}");

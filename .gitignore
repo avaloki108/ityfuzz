@@ -26,3 +26,6 @@ run_ityfuzz.sh
 __pycache__/
 *.zip
 enhancements/
+
+# Local notes / key dumps (do not commit)
+MetaMask Developer Dashboard Your Gateway to Building and Scaling Web3 Dapps.md
