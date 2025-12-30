@@ -45,7 +45,9 @@ pub fn u512_div_float(a: EVMU512, b: EVMU512, fp: usize) -> String {
 macro_rules! oracle_should_skip {
     ($ctx: expr, $key: expr) => {{
         let mut res = false;
-        if let Some(meta) = $ctx.fuzz_state.metadata_map().get::<BugMetadata>() {
+        if let Some(meta) = libafl::state::HasMetadata::metadata_map(&*$ctx.fuzz_state)
+            .get::<crate::oracle::BugMetadata>()
+        {
             res = meta.known_bugs.contains(&$key);
         }
         res
