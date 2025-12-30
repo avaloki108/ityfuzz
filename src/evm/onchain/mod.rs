@@ -1,4 +1,5 @@
 pub mod abi_decompiler;
+pub mod default_endpoints;
 pub mod endpoints;
 pub mod flashloan;
 pub mod offchain;

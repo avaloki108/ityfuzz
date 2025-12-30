@@ -1,6 +1,9 @@
 use super::types::EVMU512;
 
+pub mod advanced_arithmetic;
 pub mod arb_call;
+pub mod cross_contract;
+pub mod economic_exploit;
 pub mod echidna;
 pub mod erc20;
 pub mod function;
@@ -22,6 +25,9 @@ pub static ARB_CALL_BUG_IDX: u64 = 8;
 pub static REENTRANCY_BUG_IDX: u64 = 9;
 pub static INVARIANT_BUG_IDX: u64 = 10;
 pub static INTEGER_OVERFLOW_BUG_IDX: u64 = 11;
+pub static ADVANCED_ARITHMETIC_BUG_IDX: u64 = 12;
+pub static CROSS_CONTRACT_BUG_IDX: u64 = 13;
+pub static ECONOMIC_EXPLOIT_BUG_IDX: u64 = 14;
 
 /// Divide a U512 by another U512 and return a string with the decimal point at
 /// the correct position For example, 1000 / 3 = 333.333, then a = 1000e6, b =

@@ -403,6 +403,9 @@ enum OracleType {
     TypedBug,
     SelfDestruct,
     Invariant,
+    AdvancedArithmetic,
+    CrossContract,
+    EconomicExploit,
 }
 
 impl OracleType {
@@ -418,6 +421,9 @@ impl OracleType {
             OracleType::TypedBug => "typed_bug",
             OracleType::SelfDestruct => "selfdestruct",
             OracleType::Invariant => "invariant",
+            OracleType::AdvancedArithmetic => "advanced_arithmetic",
+            OracleType::CrossContract => "cross_contract",
+            OracleType::EconomicExploit => "economic_exploit",
         }
     }
 
@@ -433,6 +439,9 @@ impl OracleType {
             "typed_bug" => OracleType::TypedBug,
             "selfdestruct" => OracleType::SelfDestruct,
             "invariant" => OracleType::Invariant,
+            "advanced_arithmetic" => OracleType::AdvancedArithmetic,
+            "cross_contract" => OracleType::CrossContract,
+            "economic_exploit" => OracleType::EconomicExploit,
             _ => panic!("Invalid detector type: {}", s),
         }
     }
@@ -457,6 +466,10 @@ impl OracleType {
                     OracleType::StateComparison,
                     OracleType::TypedBug,
                     OracleType::SelfDestruct,
+                    OracleType::Invariant,
+                    OracleType::AdvancedArithmetic,
+                    OracleType::CrossContract,
+                    OracleType::EconomicExploit,
                 ];
             }
             if detector == "high_confidence" {
@@ -650,9 +663,9 @@ pub fn evm_main(mut args: EvmArgs) {
         HashMap::new()
     };
 
-    let builder = if args.onchain_builder.len() > 1 {
+    let builder = if !args.onchain_builder.is_empty() {
         Some(BuildJob::new(
-            args.onchain_builder,
+            args.onchain_builder.clone(),
             onchain_replacements,
             args.work_dir.clone(),
         ))
@@ -803,6 +816,9 @@ pub fn evm_main(mut args: EvmArgs) {
         typed_bug: oracle_types.contains(&OracleType::TypedBug),
         arbitrary_external_call: oracle_types.contains(&OracleType::ArbitraryCall),
         math_calculate_oracle: oracle_types.contains(&OracleType::MathCalculate),
+        advanced_arithmetic_oracle: oracle_types.contains(&OracleType::AdvancedArithmetic),
+        cross_contract_oracle: oracle_types.contains(&OracleType::CrossContract),
+        economic_exploit_oracle: oracle_types.contains(&OracleType::EconomicExploit),
         builder,
         local_files_basedir_pattern: match target_type {
             EVMTargetType::Glob => Some(args.target),
@@ -978,6 +994,9 @@ fn test_evm_offchain_setup() {
         typed_bug: oracle_types.contains(&OracleType::TypedBug),
         arbitrary_external_call: oracle_types.contains(&OracleType::ArbitraryCall),
         math_calculate_oracle: oracle_types.contains(&OracleType::MathCalculate),
+        advanced_arithmetic_oracle: oracle_types.contains(&OracleType::AdvancedArithmetic),
+        cross_contract_oracle: oracle_types.contains(&OracleType::CrossContract),
+        economic_exploit_oracle: oracle_types.contains(&OracleType::EconomicExploit),
         builder,
         local_files_basedir_pattern: match target_type {
             EVMTargetType::Glob => Some(args.target),

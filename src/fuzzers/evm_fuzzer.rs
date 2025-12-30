@@ -50,7 +50,10 @@ use crate::{
         mutator::FuzzMutator,
         onchain::{flashloan::Flashloan, offchain::OffChainConfig, ChainConfig, OnChain, WHITELIST_ADDR},
         oracles::{
+            advanced_arithmetic::AdvancedArithmeticOracle,
             arb_call::ArbitraryCallOracle,
+            cross_contract::CrossContractOracle,
+            economic_exploit::EconomicExploitOracle,
             echidna::EchidnaOracle,
             invariant::InvariantOracle,
             reentrancy::ReentrancyOracle,
@@ -444,6 +447,18 @@ pub fn evm_fuzzer(
         oracles.push(Rc::new(RefCell::new(ReentrancyOracle::new(
             artifacts.address_to_name.clone(),
         ))));
+    }
+
+    if config.advanced_arithmetic_oracle {
+        oracles.push(Rc::new(RefCell::new(AdvancedArithmeticOracle::new())));
+    }
+
+    if config.cross_contract_oracle {
+        oracles.push(Rc::new(RefCell::new(CrossContractOracle::new())));
+    }
+
+    if config.economic_exploit_oracle {
+        oracles.push(Rc::new(RefCell::new(EconomicExploitOracle::new())));
     }
 
     if let Some(m) = onchain_middleware.clone() {
